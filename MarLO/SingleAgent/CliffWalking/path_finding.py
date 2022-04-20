@@ -1,20 +1,21 @@
+import sys
+import numpy as np
+np.set_printoptions(threshold=sys.maxsize)
+
 # 80 x 80 maze
 # Agent starts in the middle (40, 40)
-rows, cols = (80, 80)
-map = [["Unexplored"] * cols] * rows
+map = np.array([[-1] * 80] * 80)
 
 # Initialize Lava
-for i in range(5):
-    for j in range(13):
-        map[39 - j][39 - i] = "Lava"
+map[28:42, 39:45] = -100
 
 # Agent Starting Location
-map[40][40] = "Floor"
+map[40, 40] = 0
 
 # Sandstone Path
-for i in range(1, 3):
-    for j in range(1, 12):
-        map[40 - j][40 - i] = "Floor"
+map[29:41, 41:44] = 0
 
 # Goal
-map[29][40] = "Goal"
+map[29, 40] = 100
+
+print(map[27:43, 38:46])

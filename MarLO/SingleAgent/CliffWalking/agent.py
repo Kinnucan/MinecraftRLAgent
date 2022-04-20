@@ -1,18 +1,24 @@
 import marlo
 import time
+import sys
+import numpy as np
+np.set_printoptions(threshold=sys.maxsize)
 
 # 'C:\\Users\\Ryan.Kinnucan\\MinecraftRLAgent\\MarLO\\Missions\\lava_maze.xml'
 
-# 80 x 80 maze
-# Agent starts in the middle (40, 40)
-rows, cols = (80, 80)
-map = [["Unexplored"] * cols] * rows
-frontier = []
+# Debug
+log = True
+
+start_coords = (40, 40)
+curr_coords = start_coords
+frontier = [(40, 40)]
 explored = []
 
-map[40][40] = "Floor"
-frontier.append(())
+# Initialize map of environment with 80 x 80 array
+# Agent starts in the middle (40, 40)
+map = np.array([[-1] * 80] * 80)
 
+# Initialize Environment
 client_pool = [('127.0.0.1', 10000)]
 join_tokens = marlo.make('MarLo-CliffWalking-v0',
                         params={
@@ -28,6 +34,10 @@ join_token = join_tokens[0]
 
 env = marlo.init(join_token)
 env.reset()
+
+# Given a set of coordinates, send the agent to that location
+def go_to_coords():
+    pass
 
 # Commands (W/ Indicators of Reliability):
 
@@ -46,13 +56,19 @@ env.reset()
 # moveeast 1 = Move Left 1 Block            (Reliable)
 # pitch -1/1 = Look Up/Down                 (Reliable)
 
-while not bool(frontier):
-    pass
-    # env.send_command("move -1")
+# While frontier is not empty
+while bool(frontier):
+    env.send_command("move 1")
+    time.sleep(1)
+    obs, reward, done, info = env.step(0)
 
-    # obs, reward, done, info = env.step(0)
-    # print("reward:", reward)
-    # print("done:", done)
-    # print("info", info)
+    if log:
+        print("reward:", reward)
+        print("done:", done)
+        print("info", info)
+    # if (reward == -100): map[curr_coords[0], curr_coords[1]] = -100
+    # if (reward == 100): map[curr_coords[0], curr_coords[1]] = 100
+    # if (reward == 0): map[curr_coords[0], curr_coords[1]] = 0
 
 env.close()
+print(map[27:43, 38:46])
