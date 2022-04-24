@@ -58,7 +58,7 @@ def go_to_coords():
 
 # While frontier is not empty
 while bool(frontier):
-    env.send_command("move 1")
+    env.send_command("pitch 1")
     time.sleep(1)
     obs, reward, done, info = env.step(0)
 
