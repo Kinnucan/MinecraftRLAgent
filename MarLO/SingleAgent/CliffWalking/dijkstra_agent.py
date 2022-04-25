@@ -13,12 +13,13 @@ log = True
 start_coords = (40, 40)
 goal_coords = (29, 40)
 curr_coords = start_coords
-# Stores all nodes that have been explored
+# Stores all nodes that have and have not been explored, respectively
 explored = []
-# Stores the moves the agent took to get to its last location
+unexplored = [start_coords]
+# Stores cost for the agent to move from the start node to the given node
+node_costs = { start_coords: 0 }
+# Stores the immediate ancestor node of the node listed as the key
 prev_node = { start_coords: None }
-# List storing unexplored nodes and their cost
-unexplored = [(start_coords, 0)]
 
 # Initialize map of environment with 80 x 80 array
 # Agent starts in the middle (40, 40)
@@ -65,31 +66,39 @@ def walk_to_node(curr, dest):
 
     path = reconstruct_path(curr, dest)
 
-    while bool(path):
-        if (dest[0] < curr[0] and dest[1] == curr[1]):
+    for i in range(0, len(path) - 1):
+        curr = path[i]
+        next = path[i + 1]
+        if (next[0] < curr[0] and next[1] == curr[1]):
             command = "move 1"
-        if (dest[0] == curr[0] and dest[1] < curr[1]):
+        if (next[0] == curr[0] and next[1] < curr[1]):
             command = "moveeast 1"
-        if (dest[0] > curr[0] and dest[1] == curr[1]):
+        if (next[0] > curr[0] and next[1] == curr[1]):
             command = "move -1"
-        if (dest[0] == curr[0] and dest[1] > curr[1]):
+        if (next[0] == curr[0] and next[1] > curr[1]):
             command = "movewest 1"
         env.send_command(command)
         time.sleep(0.5)
 
-def reconstruct_path(curr, dest):
-    path = [dest]
-    prev = prev_node[dest]
-    while prev is not None:
+# Given a starting node and a destination, reconstruct the path
+# to get from the start to the destination based on prev_node
+def reconstruct_path(start, dest):
+    curr_node = dest
+    path = [curr_node]
+    prev = prev_node[curr_node]
+    while prev != start:
         path.append(prev)
-    return path
+        curr_node = prev
+        prev = prev_node[curr_node]
+    return path.reverse()
 
 # While frontier is not empty
 while bool(unexplored):
     # If agent falls into lava, the environment must
     # be reset so that the agent will respawn
 
-    new_coords, cost = unexplored.pop(0)
+    new_coords = unexplored.pop(0)
+    cost = node_costs[new_coords]
 
     walk_to_node(curr_coords, new_coords)
 
@@ -120,11 +129,14 @@ while bool(unexplored):
             new_cost = 1
             total_cost = cost + new_cost
             if ((n not in explored) and (n not in unexplored)):
-                unexplored.append((n, total_cost))
+                unexplored.append(n)
+                node_costs[n] = total_cost
                 prev_node[n] = curr_coords
             elif (n not in explored):
-                if (total_cost < ): unexplored[(n, )]
+                if (total_cost < node_costs[n]): 
+                    node_costs[n] = total_cost
                 prev_node[n] = curr_coords
+        unexplored.sort(reverse=True)
 
     if log:
         print("reward:", reward)

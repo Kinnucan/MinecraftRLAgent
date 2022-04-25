@@ -61,26 +61,33 @@ obs, reward, done, info = env.step(0)
 # Given the agent's current location and a destination,
 # send the agent to that destination
 def walk_to_node(curr, dest):
+    if (curr == dest): return
+
     path = reconstruct_path(curr, dest)
 
-    while bool(path):
-        if (dest[0] < curr[0] and dest[1] == curr[1]):
+    for i in range(0, len(path) - 1):
+        curr = path[i]
+        next = path[i + 1]
+        if (next[0] < curr[0] and next[1] == curr[1]):
             command = "move 1"
-        if (dest[0] == curr[0] and dest[1] < curr[1]):
+        if (next[0] == curr[0] and next[1] < curr[1]):
             command = "moveeast 1"
-        if (dest[0] > curr[0] and dest[1] == curr[1]):
+        if (next[0] > curr[0] and next[1] == curr[1]):
             command = "move -1"
-        if (dest[0] == curr[0] and dest[1] > curr[1]):
+        if (next[0] == curr[0] and next[1] > curr[1]):
             command = "movewest 1"
         env.send_command(command)
         time.sleep(0.5)
 
-def reconstruct_path(curr, dest):
-    path = [dest]
-    prev = prev_node[dest]
-    while prev is not None:
+def reconstruct_path(start, dest):
+    curr_node = dest
+    path = [curr_node]
+    prev = prev_node[curr_node]
+    while prev != start:
         path.append(prev)
-    return path
+        curr_node = prev
+        prev = prev_node[curr_node]
+    return path.reverse()
 
 # While frontier is not empty
 while bool(frontier):
@@ -90,7 +97,7 @@ while bool(frontier):
         map[curr_coords[0], curr_coords[1]] = -100
         env.reset()
         time.sleep(2)
-        
+
     if (reward == 100): map[curr_coords[0], curr_coords[1]] = 100
     if (reward == 0): map[curr_coords[0], curr_coords[1]] = 0
 
