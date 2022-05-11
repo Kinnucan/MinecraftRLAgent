@@ -10,7 +10,7 @@ log = True
 
 # Agent start, goal, and current coordinates
 start_coords = (40, 40)
-goal_coords = (29, 40)
+goal_coords = (29, 44)
 curr_coords = start_coords
 # Stores all nodes that have and have not been explored, respectively
 explored = []
